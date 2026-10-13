@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Video dành cho bạn</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background-color: #000;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      touch-action: manipulation;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    #app {
+      position: relative;
+      width: 100vw;
+      height: 100dvh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #000;
+    }
+
+    /* Screen Shake Animation during Jumpscare */
+    .shaking {
+      animation: jumpscareShake 0.08s infinite alternate ease-in-out;
+    }
+
+    @keyframes jumpscareShake {
+      0% { transform: translate(-12px, -8px) scale(1.08) rotate(-1deg); }
+      50% { transform: translate(14px, 10px) scale(1.12) rotate(1.5deg); }
+      100% { transform: translate(-10px, 12px) scale(1.07) rotate(-0.5deg); }
+    }
+
+    /* 100ms Single Flash Overlay */
+    #flashOverlay {
+      position: absolute;
+      inset: 0;
+      background-color: #ffffff;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    .flash-active {
+      animation: singleFlash 100ms ease-out forwards;
+    }
+
+    @keyframes singleFlash {
+      0% { opacity: 0.95; }
+      100% { opacity: 0; }
+    }
+
+    /* Lure Screen & End Screen (Steps 1 & 4) */
+    .ui-panel {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      padding: 24px;
+      text-align: center;
+      z-index: 20;
+      transition: opacity 0.3s ease;
+    }
+
+    .ui-text {
+      font-size: clamp(1.2rem, 4vw, 1.8rem);
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      color: #e0e0e0;
+      max-width: 90vw;
+      line-height: 1.5;
+    }
+
+    .action-btn {
+      appearance: none;
+      border: none;
+      outline: none;
+      background: #2563eb;
+      color: #ffffff;
+      font-size: clamp(1rem, 3.5vw, 1.25rem);
+      font-weight: 600;
+      padding: 14px 36px;
+      border-radius: 9999px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+      transition: transform 0.15s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .action-btn:hover {
+      background: #1d4ed8;
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.6);
+      transform: translateY(-2px);
+    }
+
+    .action-btn:active {
+      transform: translateY(1px) scale(0.98);
+      background: #1e40af;
+    }
+
+    /* Loading Spinner (Step 2) */
+    #loadingSpinner {
+      position: absolute;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      z-index: 10;
+    }
+
+    .spinner {
+      width: 44px;
+      height: 44px;
+      border: 3.5px solid rgba(255, 255, 255, 0.15);
+      border-top-color: rgba(255, 255, 255, 0.85);
+      border-radius: 50%;
+      animation: spin 0.85s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Jumpscare Image Container (Step 3) */
+    #jumpscareContainer {
+      position: absolute;
+      inset: 0;
+      display: none;
+      width: 100vw;
+      height: 100dvh;
+      overflow: hidden;
+      z-index: 50;
+    }
+
+    #scareImage {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- 100ms Flash -->
+    <div id="flashOverlay"></div>
+
+    <!-- Step 1: Lure UI -->
+    <div id="lurePanel" class="ui-panel">
+      <p id="lureText" class="ui-text"></p>
+      <button id="startBtn" class="action-btn" type="button"></button>
+    </div>
+
+    <!-- Step 2: Subtle Loading -->
+    <div id="loadingSpinner">
+      <div class="spinner"></div>
+    </div>
+
+    <!-- Step 3: Jumpscare Target -->
+    <div id="jumpscareContainer">
+      <img id="scareImage" alt="Jumpscare" />
+    </div>
+
+    <!-- Step 4: End UI -->
+    <div id="endPanel" class="ui-panel hidden">
+      <p id="endText" class="ui-text"></p>
+      <button id="replayBtn" class="action-btn" type="button"></button>
+    </div>
+
+    <!-- Preloaded Audio -->
+    <audio id="scareAudio" preload="auto" playsinline></audio>
+  </div>
+
+  <script>
+    /* ========================================================
+       CẤU HÌNH TÙY CHỈNH (CONFIG)
+       Bạn có thể dễ dàng sửa các thông số bên dưới:
+       ======================================================== */
+    const CONFIG = {
+      delayMinMs: 2000,           // Thời gian chờ tối thiểu (ms)
+      delayMaxMs: 5000,           // Thời gian chờ tối đa (ms)
+      imageDurationMs: 3000,      // Thời gian hiện jumpscare trước khi hiện "Đùa thôi!" (ms)
+      volume: 1.0,                // Âm lượng từ 0.0 đến 1.0 (1.0 = tối đa)
+      imageSrc: './assets/scare.jpg',
+      soundSrc: './assets/scare.mp3',
+      lureText: 'Có một video dành cho bạn',
+      buttonText: 'Bấm để xem',
+      endText: 'Đùa thôi! 👻',
+      replayButtonText: 'Xem lại'
+    };
+    window.CONFIG = CONFIG;
+
+    /* ========================================================
+       CÁC BIẾN & THAM CHIẾU DOM
+       ======================================================== */
+    const appEl = document.getElementById('app');
+    const flashOverlay = document.getElementById('flashOverlay');
+    const lurePanel = document.getElementById('lurePanel');
+    const lureTextEl = document.getElementById('lureText');
+    const startBtn = document.getElementById('startBtn');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const jumpscareContainer = document.getElementById('jumpscareContainer');
+    const scareImage = document.getElementById('scareImage');
+    const endPanel = document.getElementById('endPanel');
+    const endTextEl = document.getElementById('endText');
+    const replayBtn = document.getElementById('replayBtn');
+    const scareAudio = document.getElementById('scareAudio');
+
+    // Thiết lập nội dung ban đầu từ CONFIG
+    lureTextEl.textContent = CONFIG.lureText;
+    startBtn.textContent = CONFIG.buttonText;
+    endTextEl.textContent = CONFIG.endText;
+    replayBtn.textContent = CONFIG.replayButtonText;
+
+    let audioUnlocked = false;
+    let audioFallbackMode = false;
+    let imageFallbackMode = false;
+    let audioCtx = null;
+    let fallbackBuffer = null;
+    let stepTimer = null;
+    let jumpscareTimer = null;
+
+    /* ========================================================
+       FALLBACK KHI THIẾU FILE (SVG/Canvas Image + Web Audio API)
+       ======================================================== */
+    // Placeholder Image: Mặt quỷ ma mị SVG
+    function createFallbackImageURI() {
+      const svg = `
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="100%" height="100%">
+        <rect width="800" height="800" fill="#000000"/>
+        <!-- Face Outline -->
+        <ellipse cx="400" cy="410" rx="280" ry="340" fill="#ffffff" filter="drop-shadow(0 0 40px #ff0000)"/>
+        <!-- Dark Eye Sockets -->
+        <ellipse cx="290" cy="330" rx="65" ry="85" fill="#050505"/>
+        <ellipse cx="510" cy="330" rx="65" ry="85" fill="#050505"/>
+        <!-- Glowing White Pin Pupils -->
+        <circle cx="290" cy="330" r="14" fill="#ffffff"/>
+        <circle cx="510" cy="330" r="14" fill="#ffffff"/>
+        <!-- Blood Tear Drops -->
+        <path d="M 290 350 Q 285 450 288 470 Q 292 450 294 350 Z" fill="#880000"/>
+        <path d="M 510 350 Q 506 450 509 470 Q 513 450 514 350 Z" fill="#880000"/>
+        <!-- Terrifying Wide Smile -->
+        <path d="M 220 520 Q 400 720 580 520 Q 400 570 220 520 Z" fill="#000000"/>
+        <!-- Sharp Teeth Top -->
+        <polygon points="260,526 280,560 300,528" fill="#ffffff"/>
+        <polygon points="310,530 330,565 350,532" fill="#ffffff"/>
+        <polygon points="360,533 380,570 400,534" fill="#ffffff"/>
+        <polygon points="410,534 430,570 450,533" fill="#ffffff"/>
+        <polygon points="460,532 480,565 500,530" fill="#ffffff"/>
+        <polygon points="510,528 530,560 550,526" fill="#ffffff"/>
+        <!-- Sharp Teeth Bottom -->
+        <polygon points="290,620 310,580 330,615" fill="#ffffff"/>
+        <polygon points="340,630 360,585 380,625" fill="#ffffff"/>
+        <polygon points="420,625 440,585 460,630" fill="#ffffff"/>
+        <polygon points="470,615 490,580 510,620" fill="#ffffff"/>
+      </svg>`;
+      return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg.trim());
+    }
+
+    // Web Audio Fallback: Tạo tiếng thét kinh dị jumpscare
+    function initWebAudioFallback() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        if (!audioCtx) audioCtx = new AudioCtx();
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+
+        // Tạo buffer âm thanh rùng rợn (noise + frequency sweeps)
+        const sampleRate = audioCtx.sampleRate;
+        const duration = 3.0; // 3 giây
+        const frameCount = sampleRate * duration;
+        fallbackBuffer = audioCtx.createBuffer(1, frameCount, sampleRate);
+        const data = fallbackBuffer.getChannelData(0);
+
+        for (let i = 0; i < frameCount; i++) {
+          const t = i / sampleRate;
+          // White noise + dissonant screeching waves
+          const noise = (Math.random() * 2 - 1) * 0.45;
+          const osc1 = Math.sin(2 * Math.PI * (800 + Math.sin(t * 30) * 400) * t) * 0.35;
+          const osc2 = Math.sin(2 * Math.PI * (1350 + Math.cos(t * 45) * 550) * t) * 0.3;
+          const osc3 = Math.sin(2 * Math.PI * (240 + t * 80) * t) * 0.25;
+
+          // Envelope: sudden blast then gradual fade
+          let env = 1.0;
+          if (t < 0.05) {
+            env = t / 0.05; // 50ms attack
+          } else {
+            env = Math.exp(-(t - 0.05) * 0.9); // decay
+          }
+          data[i] = (noise + osc1 + osc2 + osc3) * env * CONFIG.volume;
+        }
+      } catch (e) {
+        console.warn('Web Audio initialization:', e);
+      }
+    }
+
+    function playFallbackAudio() {
+      try {
+        if (!audioCtx) initWebAudioFallback();
+        if (!audioCtx || !fallbackBuffer) return;
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        const source = audioCtx.createBufferSource();
+        source.buffer = fallbackBuffer;
+        const gainNode = audioCtx.createGain();
+        gainNode.gain.setValueAtTime(CONFIG.volume, audioCtx.currentTime);
+        source.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        source.start();
+      } catch (err) {
+        console.error('Lỗi phát âm thanh fallback:', err);
+      }
+    }
+
+    /* ========================================================
+       TẢI TRƯỚC TÀI NGUYÊN (PRELOAD)
+       ======================================================== */
+    // 1. Tải trước ảnh
+    const preloadImg = new Image();
+    preloadImg.onload = () => {
+      scareImage.src = CONFIG.imageSrc;
+    };
+    preloadImg.onerror = () => {
+      console.warn('Không tìm thấy ảnh tại', CONFIG.imageSrc, '- Kích hoạt ảnh dự phòng SVG');
+      imageFallbackMode = true;
+      scareImage.src = createFallbackImageURI();
+    };
+    preloadImg.src = CONFIG.imageSrc;
+
+    // 2. Tải trước âm thanh
+    scareAudio.src = CONFIG.soundSrc;
+    scareAudio.volume = Math.max(0, Math.min(1, CONFIG.volume));
+    scareAudio.onerror = () => {
+      console.warn('Không tìm thấy âm thanh tại', CONFIG.soundSrc, '- Kích hoạt Web Audio dự phòng');
+      audioFallbackMode = true;
+      initWebAudioFallback();
+    };
+
+    /* ========================================================
+       MỞ KHÓA ÂM THANH (USER INTERACTION UNLOCK)
+       ======================================================== */
+    function unlockAudio() {
+      // Mở khóa HTML5 Audio
+      const playPromise = scareAudio.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          scareAudio.pause();
+          scareAudio.currentTime = 0;
+          audioUnlocked = true;
+        }).catch(err => {
+          console.warn('Audio unlock catch:', err);
+        });
+      }
+
+      // Mở khóa Web Audio API
+      initWebAudioFallback();
+    }
+
+    /* ========================================================
+       LUỒNG HOẠT ĐỘNG CHÍNH (4 BƯỚC)
+       ======================================================== */
+    // Bước 2: Bắt đầu chờ ngẫu nhiên
+    function startSequence() {
+      // Dọn dẹp timer cũ nếu có
+      if (stepTimer) clearTimeout(stepTimer);
+      if (jumpscareTimer) clearTimeout(jumpscareTimer);
+
+      // Ẩn các panel UI
+      lurePanel.classList.add('hidden');
+      endPanel.classList.add('hidden');
+
+      // Tắt jumpscare nếu đang hiện
+      jumpscareContainer.style.display = 'none';
+      appEl.classList.remove('shaking');
+      flashOverlay.classList.remove('flash-active');
+
+      // Hiện vòng tròn tải nhẹ để làm đối phương mất cảnh giác
+      loadingSpinner.style.display = 'flex';
+
+      // Tính toán độ trễ ngẫu nhiên từ delayMinMs đến delayMaxMs
+      const minDelay = Math.max(500, CONFIG.delayMinMs);
+      const maxDelay = Math.max(minDelay, CONFIG.delayMaxMs);
+      const randomDelay = Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
+
+      stepTimer = setTimeout(() => {
+        triggerJumpscare();
+      }, randomDelay);
+    }
+
+    // Bước 3: Kích hoạt Jumpscare
+    function triggerJumpscare() {
+      // Ẩn spinner
+      loadingSpinner.style.display = 'none';
+
+      // 1. Hiện ảnh jumpscare tràn màn hình
+      jumpscareContainer.style.display = 'block';
+
+      // 2. Rung lắc màn hình bằng CSS animation
+      appEl.classList.add('shaking');
+
+      // 3. Chớp sáng đúng 1 lần duy nhất trong 100ms
+      flashOverlay.classList.remove('flash-active');
+      void flashOverlay.offsetWidth; // Force Reflow
+      flashOverlay.classList.add('flash-active');
+
+      // 4. Phát âm thanh ở mức âm lượng tối đa
+      if (!audioFallbackMode) {
+        scareAudio.currentTime = 0;
+        scareAudio.volume = Math.max(0, Math.min(1, CONFIG.volume));
+        const p = scareAudio.play();
+        if (p !== undefined) {
+          p.catch(err => {
+            console.warn('Phát file scare.mp3 không thành công, chuyển sang Web Audio:', err);
+            playFallbackAudio();
+          });
+        }
+      } else {
+        playFallbackAudio();
+      }
+
+      // 5. Rung điện thoại nếu thiết bị hỗ trợ
+      if (navigator.vibrate) {
+        try {
+          navigator.vibrate([200, 100, 200]);
+        } catch (e) {}
+      }
+
+      // Bước 4: Sau khoảng thời gian cấu hình, dừng và hiện "Đùa thôi!"
+      jumpscareTimer = setTimeout(() => {
+        finishJumpscare();
+      }, CONFIG.imageDurationMs);
+    }
+
+    // Bước 4: Kết thúc và hiện nút "Xem lại"
+    function finishJumpscare() {
+      // Tắt ảnh jumpscare & rung lắc
+      jumpscareContainer.style.display = 'none';
+      appEl.classList.remove('shaking');
+      flashOverlay.classList.remove('flash-active');
+
+      // Tạm dừng âm thanh
+      try {
+        scareAudio.pause();
+        scareAudio.currentTime = 0;
+      } catch (e) {}
+
+      // Hiện panel kết thúc
+      endPanel.classList.remove('hidden');
+    }
+
+    /* ========================================================
+       LẮNG NGHE SỰ KIỆN CLICK
+       ======================================================== */
+    startBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      unlockAudio();
+      startSequence();
+    });
+
+    replayBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      startSequence();
+    });
+
+    // Chặn double tap zoom trên iOS Safari
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', (event) => {
+      const now = Date.now();
+      if (now - lastTouchEnd <= 300) {
+        event.preventDefault();
+      }
+      lastTouchEnd = now;
+    }, false);
+  </script>
+</body>
+</html>
