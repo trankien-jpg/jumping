@@ -80,6 +80,12 @@
       transition: opacity 0.3s ease;
     }
 
+    #lurePanel {
+      width: 100vw;
+      height: 100dvh;
+      cursor: pointer;
+    }
+
     .ui-text {
       font-size: clamp(1.2rem, 4vw, 1.8rem);
       font-weight: 500;
@@ -93,27 +99,32 @@
       appearance: none;
       border: none;
       outline: none;
-      background: #2563eb;
+      background: #e11d48;
       color: #ffffff;
-      font-size: clamp(1rem, 3.5vw, 1.25rem);
-      font-weight: 600;
-      padding: 14px 36px;
+      font-size: clamp(1.1rem, 4vw, 1.4rem);
+      font-weight: 700;
+      padding: 16px 44px;
       border-radius: 9999px;
       cursor: pointer;
-      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 4px 25px rgba(225, 29, 72, 0.5);
       transition: transform 0.15s ease, background-color 0.2s ease, box-shadow 0.2s ease;
       -webkit-tap-highlight-color: transparent;
+      letter-spacing: 0.5px;
     }
 
     .action-btn:hover {
-      background: #1d4ed8;
-      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.6);
-      transform: translateY(-2px);
+      background: #be123c;
+      box-shadow: 0 6px 30px rgba(225, 29, 72, 0.7);
+      transform: translateY(-2px) scale(1.03);
     }
 
     .action-btn:active {
       transform: translateY(1px) scale(0.98);
-      background: #1e40af;
+      background: #9f1239;
     }
 
     /* Loading Spinner (Step 2) */
@@ -201,13 +212,13 @@
        ======================================================== */
     const CONFIG = {
       delayMinMs: 2000,           // Thời gian chờ tối thiểu (ms)
-      delayMaxMs: 5000,           // Thời gian chờ tối đa (ms)
+      delayMaxMs: 4000,           // Thời gian chờ tối đa (ms)
       imageDurationMs: 3000,      // Thời gian hiện jumpscare trước khi hiện "Đùa thôi!" (ms)
       volume: 1.0,                // Âm lượng từ 0.0 đến 1.0 (1.0 = tối đa)
       imageSrc: './assets/scare.jpg',
       soundSrc: './assets/scare.mp3',
-      lureText: 'Có một video dành cho bạn',
-      buttonText: 'Bấm để xem',
+      lureText: '',               // Để trống để giao diện tối giản tập trung vào nút Play
+      buttonText: '▶ Play',
       endText: 'Đùa thôi! 👻',
       replayButtonText: 'Xem lại'
     };
@@ -230,7 +241,12 @@
     const scareAudio = document.getElementById('scareAudio');
 
     // Thiết lập nội dung ban đầu từ CONFIG
-    lureTextEl.textContent = CONFIG.lureText;
+    if (CONFIG.lureText) {
+      lureTextEl.textContent = CONFIG.lureText;
+      lureTextEl.style.display = 'block';
+    } else {
+      lureTextEl.style.display = 'none';
+    }
     startBtn.textContent = CONFIG.buttonText;
     endTextEl.textContent = CONFIG.endText;
     replayBtn.textContent = CONFIG.replayButtonText;
@@ -478,6 +494,13 @@
        LẮNG NGHE SỰ KIỆN CLICK
        ======================================================== */
     startBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      unlockAudio();
+      startSequence();
+    });
+
+    lurePanel.addEventListener('click', (e) => {
       e.preventDefault();
       unlockAudio();
       startSequence();
