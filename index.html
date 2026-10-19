@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Video dành cho bạn</title>
+  <title>Cookie Policy & Privacy</title>
   <style>
     *, *::before, *::after {
       box-sizing: border-box;
@@ -16,7 +16,7 @@
       height: 100%;
       height: 100dvh;
       overflow: hidden;
-      background-color: #000;
+      background-color: #0b0f17;
       color: #fff;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       touch-action: manipulation;
@@ -33,7 +33,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: #000;
+      background-color: #0b0f17;
     }
 
     /* Screen Shake Animation during Jumpscare */
@@ -66,65 +66,184 @@
       100% { opacity: 0; }
     }
 
-    /* Lure Screen & End Screen (Steps 1 & 4) */
-    .ui-panel {
-      position: absolute;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 24px;
-      padding: 24px;
-      text-align: center;
-      z-index: 20;
-      transition: opacity 0.3s ease;
-    }
-
+    /* ========================================================
+       COOKIE CONSENT MODAL (STEP 1)
+       ======================================================== */
     #lurePanel {
+      position: absolute;
+      inset: 0;
       width: 100vw;
       height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(11, 15, 23, 0.7);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding: 16px;
+      z-index: 20;
       cursor: pointer;
+      transition: opacity 0.25s ease, transform 0.25s ease;
     }
 
-    .ui-text {
-      font-size: clamp(1.2rem, 4vw, 1.8rem);
-      font-weight: 500;
-      letter-spacing: 0.5px;
-      color: #e0e0e0;
-      max-width: 90vw;
-      line-height: 1.5;
+    #cookieCard {
+      position: relative;
+      background: #ffffff;
+      color: #0f172a;
+      border-radius: 28px;
+      padding: 34px 36px 36px 36px;
+      width: 100%;
+      max-width: 660px;
+      box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.4), 0 0 1px rgba(0, 0, 0, 0.2);
+      cursor: default;
+      animation: cookiePop 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
-    .action-btn {
+    @keyframes cookiePop {
+      0% { transform: scale(0.92) translateY(12px); opacity: 0; }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    #cookieCloseBtn {
+      position: absolute;
+      top: 22px;
+      right: 24px;
+      background: transparent;
+      border: none;
+      padding: 8px;
+      cursor: pointer;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: background-color 0.15s ease, transform 0.1s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    #cookieCloseBtn:hover {
+      background-color: #f1f5f9;
+      transform: scale(1.1);
+    }
+
+    .cookie-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .cookie-text-col {
+      flex: 1;
+      min-width: 0;
+    }
+
+    #cookieTitle {
+      font-size: clamp(26px, 4vw, 32px);
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.5px;
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+
+    #cookieBody {
+      font-size: clamp(13px, 2.5vw, 15px);
+      color: #334155;
+      line-height: 1.55;
+      margin-bottom: 24px;
+      font-weight: 450;
+      max-width: 410px;
+    }
+
+    .cookie-btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .cookie-btn {
       appearance: none;
       border: none;
       outline: none;
-      background: #e11d48;
-      color: #ffffff;
-      font-size: clamp(1.1rem, 4vw, 1.4rem);
+      font-size: 14px;
       font-weight: 700;
-      padding: 16px 44px;
-      border-radius: 9999px;
+      padding: 12px 28px;
+      border-radius: 10px;
       cursor: pointer;
-      display: inline-flex;
+      transition: transform 0.1s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .cookie-accept {
+      background: #0f172a;
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.25);
+    }
+
+    .cookie-accept:hover {
+      background: #1e293b;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.35);
+    }
+
+    .cookie-accept:active {
+      transform: translateY(1px);
+    }
+
+    .cookie-pref {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+
+    .cookie-pref:hover {
+      background: #e2e8f0;
+      transform: translateY(-1px);
+    }
+
+    .cookie-pref:active {
+      transform: translateY(1px);
+    }
+
+    .cookie-img-col {
+      flex-shrink: 0;
+      width: clamp(130px, 24vw, 200px);
+      display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      box-shadow: 0 4px 25px rgba(225, 29, 72, 0.5);
-      transition: transform 0.15s ease, background-color 0.2s ease, box-shadow 0.2s ease;
-      -webkit-tap-highlight-color: transparent;
-      letter-spacing: 0.5px;
     }
 
-    .action-btn:hover {
-      background: #be123c;
-      box-shadow: 0 6px 30px rgba(225, 29, 72, 0.7);
-      transform: translateY(-2px) scale(1.03);
+    .cookie-heart-img {
+      width: 100%;
+      height: auto;
+      max-height: 190px;
+      object-fit: contain;
+      display: block;
+      filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.1));
     }
 
-    .action-btn:active {
-      transform: translateY(1px) scale(0.98);
-      background: #9f1239;
+    @media (max-width: 540px) {
+      #cookieCard {
+        padding: 24px 20px 24px 20px;
+      }
+      .cookie-content {
+        flex-direction: column-reverse;
+        align-items: flex-start;
+        gap: 16px;
+      }
+      .cookie-img-col {
+        width: 110px;
+        align-self: center;
+      }
+      .cookie-btn-row {
+        width: 100%;
+      }
+      .cookie-btn {
+        flex: 1;
+        text-align: center;
+        padding: 12px 14px;
+      }
     }
 
     /* Loading Spinner (Step 2) */
@@ -169,6 +288,55 @@
       display: block;
     }
 
+    /* End Screen (Step 4) */
+    .ui-panel {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      padding: 24px;
+      text-align: center;
+      z-index: 20;
+    }
+
+    .ui-text {
+      font-size: clamp(1.4rem, 4vw, 2rem);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      color: #e0e0e0;
+      max-width: 90vw;
+      line-height: 1.5;
+    }
+
+    .action-btn {
+      appearance: none;
+      border: none;
+      outline: none;
+      background: #2563eb;
+      color: #ffffff;
+      font-size: clamp(1rem, 3.5vw, 1.25rem);
+      font-weight: 600;
+      padding: 14px 38px;
+      border-radius: 9999px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+      transition: transform 0.15s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .action-btn:hover {
+      background: #1d4ed8;
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.6);
+      transform: translateY(-2px);
+    }
+
+    .action-btn:active {
+      transform: translateY(1px) scale(0.98);
+      background: #1e40af;
+    }
+
     .hidden {
       display: none !important;
     }
@@ -179,13 +347,36 @@
     <!-- 100ms Flash -->
     <div id="flashOverlay"></div>
 
-    <!-- Step 1: Lure UI -->
-    <div id="lurePanel" class="ui-panel">
-      <p id="lureText" class="ui-text"></p>
-      <button id="startBtn" class="action-btn" type="button"></button>
+    <!-- Step 1: Cookie Consent Lure UI -->
+    <div id="lurePanel">
+      <div id="cookieCard">
+        <button id="cookieCloseBtn" class="cookie-trigger" type="button" aria-label="Close">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+
+        <div class="cookie-content">
+          <div class="cookie-text-col">
+            <h2 id="cookieTitle">Cookies</h2>
+            <p id="cookieBody">
+              We use cookies and similar technologies to help personalise content, tailor and measure ads, and provide a better experience. By clicking accept, you agree to this, as outlined in our Cookie Policy.
+            </p>
+            <div class="cookie-btn-row">
+              <button id="acceptBtn" class="cookie-btn cookie-accept cookie-trigger" type="button">Accept</button>
+              <button id="prefBtn" class="cookie-btn cookie-pref cookie-trigger" type="button">Preferences</button>
+            </div>
+          </div>
+
+          <div class="cookie-img-col">
+            <img src="./assets/cookie.png" alt="Cookie" class="cookie-heart-img" />
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Step 2: Subtle Loading -->
+    <!-- Step 2: Subtle Loading Spinner -->
     <div id="loadingSpinner">
       <div class="spinner"></div>
     </div>
@@ -208,17 +399,18 @@
   <script>
     /* ========================================================
        CẤU HÌNH TÙY CHỈNH (CONFIG)
-       Bạn có thể dễ dàng sửa các thông số bên dưới:
        ======================================================== */
     const CONFIG = {
-      delayMinMs: 2000,           // Thời gian chờ tối thiểu (ms)
-      delayMaxMs: 4000,           // Thời gian chờ tối đa (ms)
-      imageDurationMs: 3000,      // Thời gian hiện jumpscare trước khi hiện "Đùa thôi!" (ms)
-      volume: 1.0,                // Âm lượng từ 0.0 đến 1.0 (1.0 = tối đa)
+      delayMinMs: 1500,           // Thời gian chờ tối thiểu sau khi bấm (1.5s)
+      delayMaxMs: 3500,           // Thời gian chờ tối đa sau khi bấm (3.5s)
+      imageDurationMs: 3000,      // Thời gian hiện jumpscare (3s)
+      volume: 1.0,                // Âm lượng (1.0 = tối đa)
       imageSrc: './assets/scare.jpg',
       soundSrc: './assets/scare.mp3',
-      lureText: '',               // Để trống để giao diện tối giản tập trung vào nút Play
-      buttonText: '▶ Play',
+      cookieTitle: 'Cookies',
+      cookieBody: 'We use cookies and similar technologies to help personalise content, tailor and measure ads, and provide a better experience. By clicking accept, you agree to this, as outlined in our Cookie Policy.',
+      acceptBtnText: 'Accept',
+      preferencesBtnText: 'Preferences',
       endText: 'Đùa thôi! 👻',
       replayButtonText: 'Xem lại'
     };
@@ -230,8 +422,11 @@
     const appEl = document.getElementById('app');
     const flashOverlay = document.getElementById('flashOverlay');
     const lurePanel = document.getElementById('lurePanel');
-    const lureTextEl = document.getElementById('lureText');
-    const startBtn = document.getElementById('startBtn');
+    const cookieCard = document.getElementById('cookieCard');
+    const cookieTitleEl = document.getElementById('cookieTitle');
+    const cookieBodyEl = document.getElementById('cookieBody');
+    const acceptBtn = document.getElementById('acceptBtn');
+    const prefBtn = document.getElementById('prefBtn');
     const loadingSpinner = document.getElementById('loadingSpinner');
     const jumpscareContainer = document.getElementById('jumpscareContainer');
     const scareImage = document.getElementById('scareImage');
@@ -241,13 +436,10 @@
     const scareAudio = document.getElementById('scareAudio');
 
     // Thiết lập nội dung ban đầu từ CONFIG
-    if (CONFIG.lureText) {
-      lureTextEl.textContent = CONFIG.lureText;
-      lureTextEl.style.display = 'block';
-    } else {
-      lureTextEl.style.display = 'none';
-    }
-    startBtn.textContent = CONFIG.buttonText;
+    cookieTitleEl.textContent = CONFIG.cookieTitle;
+    cookieBodyEl.textContent = CONFIG.cookieBody;
+    acceptBtn.textContent = CONFIG.acceptBtnText;
+    prefBtn.textContent = CONFIG.preferencesBtnText;
     endTextEl.textContent = CONFIG.endText;
     replayBtn.textContent = CONFIG.replayButtonText;
 
@@ -262,32 +454,24 @@
     /* ========================================================
        FALLBACK KHI THIẾU FILE (SVG/Canvas Image + Web Audio API)
        ======================================================== */
-    // Placeholder Image: Mặt quỷ ma mị SVG
     function createFallbackImageURI() {
       const svg = `
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="100%" height="100%">
         <rect width="800" height="800" fill="#000000"/>
-        <!-- Face Outline -->
         <ellipse cx="400" cy="410" rx="280" ry="340" fill="#ffffff" filter="drop-shadow(0 0 40px #ff0000)"/>
-        <!-- Dark Eye Sockets -->
         <ellipse cx="290" cy="330" rx="65" ry="85" fill="#050505"/>
         <ellipse cx="510" cy="330" rx="65" ry="85" fill="#050505"/>
-        <!-- Glowing White Pin Pupils -->
         <circle cx="290" cy="330" r="14" fill="#ffffff"/>
         <circle cx="510" cy="330" r="14" fill="#ffffff"/>
-        <!-- Blood Tear Drops -->
         <path d="M 290 350 Q 285 450 288 470 Q 292 450 294 350 Z" fill="#880000"/>
         <path d="M 510 350 Q 506 450 509 470 Q 513 450 514 350 Z" fill="#880000"/>
-        <!-- Terrifying Wide Smile -->
         <path d="M 220 520 Q 400 720 580 520 Q 400 570 220 520 Z" fill="#000000"/>
-        <!-- Sharp Teeth Top -->
         <polygon points="260,526 280,560 300,528" fill="#ffffff"/>
         <polygon points="310,530 330,565 350,532" fill="#ffffff"/>
         <polygon points="360,533 380,570 400,534" fill="#ffffff"/>
         <polygon points="410,534 430,570 450,533" fill="#ffffff"/>
         <polygon points="460,532 480,565 500,530" fill="#ffffff"/>
         <polygon points="510,528 530,560 550,526" fill="#ffffff"/>
-        <!-- Sharp Teeth Bottom -->
         <polygon points="290,620 310,580 330,615" fill="#ffffff"/>
         <polygon points="340,630 360,585 380,625" fill="#ffffff"/>
         <polygon points="420,625 440,585 460,630" fill="#ffffff"/>
@@ -296,7 +480,6 @@
       return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg.trim());
     }
 
-    // Web Audio Fallback: Tạo tiếng thét kinh dị jumpscare
     function initWebAudioFallback() {
       try {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -306,27 +489,24 @@
           audioCtx.resume();
         }
 
-        // Tạo buffer âm thanh rùng rợn (noise + frequency sweeps)
         const sampleRate = audioCtx.sampleRate;
-        const duration = 3.0; // 3 giây
+        const duration = 3.0;
         const frameCount = sampleRate * duration;
         fallbackBuffer = audioCtx.createBuffer(1, frameCount, sampleRate);
         const data = fallbackBuffer.getChannelData(0);
 
         for (let i = 0; i < frameCount; i++) {
           const t = i / sampleRate;
-          // White noise + dissonant screeching waves
           const noise = (Math.random() * 2 - 1) * 0.45;
           const osc1 = Math.sin(2 * Math.PI * (800 + Math.sin(t * 30) * 400) * t) * 0.35;
           const osc2 = Math.sin(2 * Math.PI * (1350 + Math.cos(t * 45) * 550) * t) * 0.3;
           const osc3 = Math.sin(2 * Math.PI * (240 + t * 80) * t) * 0.25;
 
-          // Envelope: sudden blast then gradual fade
           let env = 1.0;
           if (t < 0.05) {
-            env = t / 0.05; // 50ms attack
+            env = t / 0.05;
           } else {
-            env = Math.exp(-(t - 0.05) * 0.9); // decay
+            env = Math.exp(-(t - 0.05) * 0.9);
           }
           data[i] = (noise + osc1 + osc2 + osc3) * env * CONFIG.volume;
         }
@@ -357,23 +537,19 @@
     /* ========================================================
        TẢI TRƯỚC TÀI NGUYÊN (PRELOAD)
        ======================================================== */
-    // 1. Tải trước ảnh
     const preloadImg = new Image();
     preloadImg.onload = () => {
       scareImage.src = CONFIG.imageSrc;
     };
     preloadImg.onerror = () => {
-      console.warn('Không tìm thấy ảnh tại', CONFIG.imageSrc, '- Kích hoạt ảnh dự phòng SVG');
       imageFallbackMode = true;
       scareImage.src = createFallbackImageURI();
     };
     preloadImg.src = CONFIG.imageSrc;
 
-    // 2. Tải trước âm thanh
     scareAudio.src = CONFIG.soundSrc;
     scareAudio.volume = Math.max(0, Math.min(1, CONFIG.volume));
     scareAudio.onerror = () => {
-      console.warn('Không tìm thấy âm thanh tại', CONFIG.soundSrc, '- Kích hoạt Web Audio dự phòng');
       audioFallbackMode = true;
       initWebAudioFallback();
     };
@@ -382,7 +558,6 @@
        MỞ KHÓA ÂM THANH (USER INTERACTION UNLOCK)
        ======================================================== */
     function unlockAudio() {
-      // Mở khóa HTML5 Audio
       const playPromise = scareAudio.play();
       if (playPromise !== undefined) {
         playPromise.then(() => {
@@ -393,21 +568,17 @@
           console.warn('Audio unlock catch:', err);
         });
       }
-
-      // Mở khóa Web Audio API
       initWebAudioFallback();
     }
 
     /* ========================================================
        LUỒNG HOẠT ĐỘNG CHÍNH (4 BƯỚC)
        ======================================================== */
-    // Bước 2: Bắt đầu chờ ngẫu nhiên
     function startSequence() {
-      // Dọn dẹp timer cũ nếu có
       if (stepTimer) clearTimeout(stepTimer);
       if (jumpscareTimer) clearTimeout(jumpscareTimer);
 
-      // Ẩn các panel UI
+      // Ẩn Cookie panel & End panel
       lurePanel.classList.add('hidden');
       endPanel.classList.add('hidden');
 
@@ -416,10 +587,9 @@
       appEl.classList.remove('shaking');
       flashOverlay.classList.remove('flash-active');
 
-      // Hiện vòng tròn tải nhẹ để làm đối phương mất cảnh giác
+      // Hiện spinner tải nhẹ
       loadingSpinner.style.display = 'flex';
 
-      // Tính toán độ trễ ngẫu nhiên từ delayMinMs đến delayMaxMs
       const minDelay = Math.max(500, CONFIG.delayMinMs);
       const maxDelay = Math.max(minDelay, CONFIG.delayMaxMs);
       const randomDelay = Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
@@ -429,30 +599,27 @@
       }, randomDelay);
     }
 
-    // Bước 3: Kích hoạt Jumpscare
     function triggerJumpscare() {
-      // Ẩn spinner
       loadingSpinner.style.display = 'none';
 
       // 1. Hiện ảnh jumpscare tràn màn hình
       jumpscareContainer.style.display = 'block';
 
-      // 2. Rung lắc màn hình bằng CSS animation
+      // 2. Rung lắc màn hình
       appEl.classList.add('shaking');
 
       // 3. Chớp sáng đúng 1 lần duy nhất trong 100ms
       flashOverlay.classList.remove('flash-active');
-      void flashOverlay.offsetWidth; // Force Reflow
+      void flashOverlay.offsetWidth;
       flashOverlay.classList.add('flash-active');
 
-      // 4. Phát âm thanh ở mức âm lượng tối đa
+      // 4. Phát âm thanh
       if (!audioFallbackMode) {
         scareAudio.currentTime = 0;
         scareAudio.volume = Math.max(0, Math.min(1, CONFIG.volume));
         const p = scareAudio.play();
         if (p !== undefined) {
           p.catch(err => {
-            console.warn('Phát file scare.mp3 không thành công, chuyển sang Web Audio:', err);
             playFallbackAudio();
           });
         }
@@ -460,52 +627,53 @@
         playFallbackAudio();
       }
 
-      // 5. Rung điện thoại nếu thiết bị hỗ trợ
+      // 5. Rung điện thoại
       if (navigator.vibrate) {
         try {
           navigator.vibrate([200, 100, 200]);
         } catch (e) {}
       }
 
-      // Bước 4: Sau khoảng thời gian cấu hình, dừng và hiện "Đùa thôi!"
+      // Hết thời gian thì hiện màn hình kết thúc
       jumpscareTimer = setTimeout(() => {
         finishJumpscare();
       }, CONFIG.imageDurationMs);
     }
 
-    // Bước 4: Kết thúc và hiện nút "Xem lại"
     function finishJumpscare() {
-      // Tắt ảnh jumpscare & rung lắc
       jumpscareContainer.style.display = 'none';
       appEl.classList.remove('shaking');
       flashOverlay.classList.remove('flash-active');
 
-      // Tạm dừng âm thanh
       try {
         scareAudio.pause();
         scareAudio.currentTime = 0;
       } catch (e) {}
 
-      // Hiện panel kết thúc
       endPanel.classList.remove('hidden');
     }
 
     /* ========================================================
-       LẮNG NGHE SỰ KIỆN CLICK
+       LẮNG NGHE SỰ KIỆN CLICK (BẤM VÀO ĐÂU CŨNG DÍNH BẪY)
        ======================================================== */
-    startBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      unlockAudio();
-      startSequence();
+    // Bấm nút Accept, Preferences hoặc nút đóng ✕
+    document.querySelectorAll('.cookie-trigger').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        unlockAudio();
+        startSequence();
+      });
     });
 
+    // Bấm vào bất kỳ đâu trên nền xung quanh
     lurePanel.addEventListener('click', (e) => {
       e.preventDefault();
       unlockAudio();
       startSequence();
     });
 
+    // Nút Xem lại
     replayBtn.addEventListener('click', (e) => {
       e.preventDefault();
       startSequence();
