@@ -279,6 +279,7 @@
       height: 100dvh;
       overflow: hidden;
       z-index: 50;
+      cursor: pointer;
     }
 
     #scareImage {
@@ -286,55 +287,6 @@
       height: 100%;
       object-fit: cover;
       display: block;
-    }
-
-    /* End Screen (Step 4) */
-    .ui-panel {
-      position: absolute;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 24px;
-      padding: 24px;
-      text-align: center;
-      z-index: 20;
-    }
-
-    .ui-text {
-      font-size: clamp(1.4rem, 4vw, 2rem);
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      color: #e0e0e0;
-      max-width: 90vw;
-      line-height: 1.5;
-    }
-
-    .action-btn {
-      appearance: none;
-      border: none;
-      outline: none;
-      background: #2563eb;
-      color: #ffffff;
-      font-size: clamp(1rem, 3.5vw, 1.25rem);
-      font-weight: 600;
-      padding: 14px 38px;
-      border-radius: 9999px;
-      cursor: pointer;
-      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
-      transition: transform 0.15s ease, background-color 0.2s ease, box-shadow 0.2s ease;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .action-btn:hover {
-      background: #1d4ed8;
-      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.6);
-      transform: translateY(-2px);
-    }
-
-    .action-btn:active {
-      transform: translateY(1px) scale(0.98);
-      background: #1e40af;
     }
 
     .hidden {
@@ -386,12 +338,6 @@
       <img id="scareImage" alt="Jumpscare" />
     </div>
 
-    <!-- Step 4: End UI -->
-    <div id="endPanel" class="ui-panel hidden">
-      <p id="endText" class="ui-text"></p>
-      <button id="replayBtn" class="action-btn" type="button"></button>
-    </div>
-
     <!-- Preloaded Audio -->
     <audio id="scareAudio" preload="auto" playsinline></audio>
   </div>
@@ -403,16 +349,13 @@
     const CONFIG = {
       delayMinMs: 1500,           // Thời gian chờ tối thiểu sau khi bấm (1.5s)
       delayMaxMs: 3500,           // Thời gian chờ tối đa sau khi bấm (3.5s)
-      imageDurationMs: 3000,      // Thời gian hiện jumpscare (3s)
       volume: 1.0,                // Âm lượng (1.0 = tối đa)
       imageSrc: './assets/scare.jpg',
       soundSrc: './assets/scare.mp3',
       cookieTitle: 'Cookies',
       cookieBody: 'We use cookies and similar technologies to help personalise content, tailor and measure ads, and provide a better experience. By clicking accept, you agree to this, as outlined in our Cookie Policy.',
       acceptBtnText: 'Accept',
-      preferencesBtnText: 'Preferences',
-      endText: 'Đùa thôi! 👻',
-      replayButtonText: 'Xem lại'
+      preferencesBtnText: 'Preferences'
     };
     window.CONFIG = CONFIG;
 
@@ -430,9 +373,6 @@
     const loadingSpinner = document.getElementById('loadingSpinner');
     const jumpscareContainer = document.getElementById('jumpscareContainer');
     const scareImage = document.getElementById('scareImage');
-    const endPanel = document.getElementById('endPanel');
-    const endTextEl = document.getElementById('endText');
-    const replayBtn = document.getElementById('replayBtn');
     const scareAudio = document.getElementById('scareAudio');
 
     // Thiết lập nội dung ban đầu từ CONFIG
@@ -440,8 +380,6 @@
     cookieBodyEl.textContent = CONFIG.cookieBody;
     acceptBtn.textContent = CONFIG.acceptBtnText;
     prefBtn.textContent = CONFIG.preferencesBtnText;
-    endTextEl.textContent = CONFIG.endText;
-    replayBtn.textContent = CONFIG.replayButtonText;
 
     let audioUnlocked = false;
     let audioFallbackMode = false;
@@ -449,7 +387,6 @@
     let audioCtx = null;
     let fallbackBuffer = null;
     let stepTimer = null;
-    let jumpscareTimer = null;
 
     /* ========================================================
        FALLBACK KHI THIẾU FILE (SVG/Canvas Image + Web Audio API)
@@ -572,15 +509,13 @@
     }
 
     /* ========================================================
-       LUỒNG HOẠT ĐỘNG CHÍNH (4 BƯỚC)
+       LUỒNG HOẠT ĐỘNG CHÍNH
        ======================================================== */
     function startSequence() {
       if (stepTimer) clearTimeout(stepTimer);
-      if (jumpscareTimer) clearTimeout(jumpscareTimer);
 
-      // Ẩn Cookie panel & End panel
+      // Ẩn Cookie panel
       lurePanel.classList.add('hidden');
-      endPanel.classList.add('hidden');
 
       // Tắt jumpscare nếu đang hiện
       jumpscareContainer.style.display = 'none';
@@ -602,7 +537,7 @@
     function triggerJumpscare() {
       loadingSpinner.style.display = 'none';
 
-      // 1. Hiện ảnh jumpscare tràn màn hình
+      // 1. Hiện ảnh jumpscare tràn màn hình vĩnh viễn
       jumpscareContainer.style.display = 'block';
 
       // 2. Rung lắc màn hình
@@ -634,23 +569,11 @@
         } catch (e) {}
       }
 
-      // Hết thời gian thì hiện màn hình kết thúc
-      jumpscareTimer = setTimeout(() => {
-        finishJumpscare();
-      }, CONFIG.imageDurationMs);
-    }
-
-    function finishJumpscare() {
-      jumpscareContainer.style.display = 'none';
-      appEl.classList.remove('shaking');
-      flashOverlay.classList.remove('flash-active');
-
-      try {
-        scareAudio.pause();
-        scareAudio.currentTime = 0;
-      } catch (e) {}
-
-      endPanel.classList.remove('hidden');
+      // Dừng hiệu ứng rung sau 2.5s nhưng giữ nguyên ảnh jumpscare toàn màn hình
+      setTimeout(() => {
+        appEl.classList.remove('shaking');
+        flashOverlay.classList.remove('flash-active');
+      }, 2500);
     }
 
     /* ========================================================
@@ -673,10 +596,10 @@
       startSequence();
     });
 
-    // Nút Xem lại
-    replayBtn.addEventListener('click', (e) => {
+    // Chạm vào ảnh jumpscare thì hù tiếp
+    jumpscareContainer.addEventListener('click', (e) => {
       e.preventDefault();
-      startSequence();
+      triggerJumpscare();
     });
 
     // Chặn double tap zoom trên iOS Safari
